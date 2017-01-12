@@ -3,10 +3,10 @@ module ActiveAdminScopedCollectionActions
 
     def scoped_collection_action(name, options = {}, &block)
       if name == :scoped_collection_destroy
-        options[:title] = 'Delete batch' if options[:title].nil?
+        options[:title] = 'Удалить' if options[:title].nil?
         add_scoped_collection_action_default_destroy(options, &block)
       elsif name == :scoped_collection_update
-        options[:title] = 'Update batch' if options[:title].nil?
+        options[:title] = 'Редактировать' if options[:title].nil?
         add_scoped_collection_action_default_update(options, &block)
       else
         batch_action(name, if: proc { false }, &block)
@@ -25,7 +25,8 @@ module ActiveAdminScopedCollectionActions
         if !params.has_key?(:changes) || params[:changes].empty?
           render nothing: true, status: :no_content and next
         end
-        permitted_changes = params.require(:changes).permit(*(options[:form].call.keys))
+        fields = options[:form].call.keys.map { |name| name.to_s.split("/")[0].to_sym }
+        permitted_changes = params.require(:changes).permit(*(fields))
         if block_given?
           instance_eval &block
         else
@@ -36,7 +37,7 @@ module ActiveAdminScopedCollectionActions
             end
           end
           if errors.empty?
-            flash[:notice] = 'Batch update done'
+            flash[:notice] = 'Записи обработаны'
           else
             flash[:error] = errors.join(". ")
           end

@@ -1,6 +1,11 @@
 ActiveAdmin.dialogMassFieldsUpdate = (message, inputs, callback)->
   html = """<form id="dialog_confirm" title="#{message}"><div stype="padding-right:4px;padding-left:1px;margin-right:2px"><ul>"""
   for name, type of inputs
+    label = name
+    if name.indexOf("/")!=-1
+      parts = name.split("/")
+      name = parts[0]
+      label = parts[1]
     if /^(datepicker|checkbox|text)$/.test type
       wrapper = 'input'
     else if $.isArray type
@@ -11,7 +16,7 @@ ActiveAdmin.dialogMassFieldsUpdate = (message, inputs, callback)->
     klass = if type is 'datepicker' then type else ''
     html += """<li>
       <input type='checkbox' class='mass_update_protect_fild_flag' value='Y' id="mass_update_dialog_#{name}" />
-      <label for="mass_update_dialog_#{name}"> #{name.charAt(0).toUpperCase() + name.slice(1)}</label>
+      <label for="mass_update_dialog_#{name}"> #{label}</label>
       <#{wrapper} name="#{name}" class="#{klass}" type="#{type}" disabled="disabled">""" +
         (if opts then (
           for v in opts
@@ -46,9 +51,9 @@ ActiveAdmin.dialogMassFieldsUpdate = (message, inputs, callback)->
         else
           $(e.target).next().next().attr('disabled', 'disabled').trigger("chosen:updated")
     buttons:
-      OK: (e)->
-        $(e.target).closest('.ui-dialog-buttonset').html('<span>Processing. Please wait...</span>')
+      "OK": (e)->
+        $(e.target).closest('.ui-dialog-buttonset').html('<span>Обработка. Ждите...</span>')
         callback $(@).serializeObject()
-      Cancel: ->
+      "Отмена": ->
         $('.mass_update_protect_fild_flag').off('change')
         $(@).dialog('close').remove()
